@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,6 +37,8 @@ import java.util.Arrays;
 public class LocationFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationViewModel viewModel;
 
     // Permission launcher
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =
@@ -57,6 +62,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_location, container, false);
+
 
         // Load map
         SupportMapFragment mapFragment = (SupportMapFragment)
@@ -128,6 +134,22 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback {
                         Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
+        if (fusedLocationClient == null) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        }
+
+        // Get current location
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                // Save location in ViewModel
+                if (viewModel == null) {
+                    viewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
+                }
+                viewModel.setLocation(location);
+            }
+        });
+
+
     }
 }
 

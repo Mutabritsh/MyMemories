@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
                     fragment = new AddFragment();
                 } else if (id == R.id.nav_location) {
                     fragment = new LocationFragment();
-                } else if (id == R.id.nav_info) {
-                    fragment = new InfoFragment();
+                } else if (id == R.id.nav_list) {
+                    fragment = new ListFragment();
                 }
                 if (fragment != null) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.body_container, fragment).commit();
