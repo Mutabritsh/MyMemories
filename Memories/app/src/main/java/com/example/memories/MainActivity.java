@@ -1,5 +1,6 @@
 package com.example.memories;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -12,9 +13,17 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.io.ByteArrayOutputStream;
+
 public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
+    public static byte[] imageToBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
 
 
     @Override
@@ -60,6 +69,5 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.body_container, locationFragment)
                 .commit();
 
-        
     }
 }

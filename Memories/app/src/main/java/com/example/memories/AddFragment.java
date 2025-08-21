@@ -1,5 +1,7 @@
 package com.example.memories;
 
+import static androidx.constraintlayout.motion.widget.Debug.getLocation;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -37,6 +39,7 @@ public class AddFragment extends Fragment {
     ImageView memoryImageView;
     TextView locationTextView;
     private LocationViewModel viewModel;
+    private DatabaseHelper databaseHelper;
 
     private ActivityResultLauncher<Intent> resultLauncher;
     private void showAddressFromLocation(Location location) {
@@ -70,6 +73,8 @@ public class AddFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add, container, false);
 
+        databaseHelper = new DatabaseHelper(getActivity());
+
         title = view.findViewById(R.id.title);
         description = view.findViewById(R.id.description);
         chooseImageButton = view.findViewById(R.id.chooseImageButton);
@@ -77,6 +82,8 @@ public class AddFragment extends Fragment {
         saveButton = view.findViewById(R.id.savememoryButton);
         memoryImageView = view.findViewById(R.id.memoryImageView);
         locationTextView = view.findViewById(R.id.location);
+
+        databaseHelper.insertData(new Data(title.getText().toString(), description.getText().toString(), getLocation().toString(), null, 1));
 
         viewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
 
@@ -104,7 +111,26 @@ public class AddFragment extends Fragment {
             public void onClick(View v) {
                 String getTitle = title.getText().toString();
                 String getDescription = description.getText().toString();
+                String getLocation = locationTextView.getText().toString();
+                if (getTitle.isEmpty() || getDescription.isEmpty() || getLocation.isEmpty()) {
+                    Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
+                memoryImageView.setDrawingCacheEnabled(true);
+                memoryImageView.buildDrawingCache();
+                Uri imageUri = null;
+                if (memoryImageView.getDrawable() != null) {
+                    imageUri = Uri.parse(MediaStore.Images.Media.insertImage(
+                            getActivity().getContentResolver(),
+                            memoryImageView.getDrawingCache(),
+                            "Memory Image",
+                            "Image of memory"
+
+
+                    ));
+                }
+                databaseHelper.insertData(new Data(getTitle, getDescription, getLocation, imageUri != null ? imageUri.toString().getBytes() : null, 1));
             }
         });
 

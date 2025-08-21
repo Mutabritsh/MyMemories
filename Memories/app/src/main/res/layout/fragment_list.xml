@@ -1,12 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="8dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ListFragment"
-    android:background="@color/light_green">
+    android:layout_height="wrap_content"
+    android:id="@+id/recyclerView">
+
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/memoryRecyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:padding="16dp"
+    android:scrollbars="vertical">
 
 
+    <ImageView
+        android:id="@+id/memoryImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop" />
 
-</ScrollView>
+    <TextView
+        android:id="@+id/memoryTitle"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/memoryDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/memoryLocation"
+        android:textStyle="italic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>
