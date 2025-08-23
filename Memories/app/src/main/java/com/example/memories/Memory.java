@@ -1,6 +1,5 @@
 package com.example.memories;
 
-
 public class Memory {
     private String title;
     private String description;
@@ -14,20 +13,8 @@ public class Memory {
         this.image = image;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public byte[] getImage() {
-        return image;
-    }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public String getLocation() { return location; }
+    public byte[] getImage() { return image; }
 }
-

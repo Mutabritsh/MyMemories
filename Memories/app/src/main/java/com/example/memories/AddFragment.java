@@ -5,6 +5,8 @@ import static androidx.constraintlayout.motion.widget.Debug.getLocation;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -34,6 +36,7 @@ import java.util.Locale;
 
 
 public class AddFragment extends Fragment {
+    private static final int PICK_IMAGE_REQUEST = 1;
     Button chooseImageButton, getlocationButton, saveButton;
     EditText title, description;
     ImageView memoryImageView;
@@ -41,7 +44,7 @@ public class AddFragment extends Fragment {
     private LocationViewModel viewModel;
     private DatabaseHelper databaseHelper;
 
-    private ActivityResultLauncher<Intent> resultLauncher;
+
     private void showAddressFromLocation(Location location) {
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
 
@@ -73,7 +76,9 @@ public class AddFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add, container, false);
 
-        databaseHelper = new DatabaseHelper(getActivity());
+        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+        SQLiteDatabase db = dbHelper.getWritableDatabase(); // DB is now open
+
 
         title = view.findViewById(R.id.title);
         description = view.findViewById(R.id.description);
@@ -83,7 +88,7 @@ public class AddFragment extends Fragment {
         memoryImageView = view.findViewById(R.id.memoryImageView);
         locationTextView = view.findViewById(R.id.location);
 
-        databaseHelper.insertData(new Data(title.getText().toString(), description.getText().toString(), getLocation().toString(), null, 1));
+        databaseHelper = new DatabaseHelper(getActivity());
 
         viewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
 
@@ -105,66 +110,74 @@ public class AddFragment extends Fragment {
             }
         });
 
-
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        chooseImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String getTitle = title.getText().toString();
-                String getDescription = description.getText().toString();
-                String getLocation = locationTextView.getText().toString();
-                if (getTitle.isEmpty() || getDescription.isEmpty() || getLocation.isEmpty()) {
-                    Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                memoryImageView.setDrawingCacheEnabled(true);
-                memoryImageView.buildDrawingCache();
-                Uri imageUri = null;
-                if (memoryImageView.getDrawable() != null) {
-                    imageUri = Uri.parse(MediaStore.Images.Media.insertImage(
-                            getActivity().getContentResolver(),
-                            memoryImageView.getDrawingCache(),
-                            "Memory Image",
-                            "Image of memory"
-
-
-                    ));
-                }
-                databaseHelper.insertData(new Data(getTitle, getDescription, getLocation, imageUri != null ? imageUri.toString().getBytes() : null, 1));
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                resultLauncher.launch(intent);
             }
         });
 
 
 
-        chooseImageButton.setOnClickListener(v -> pickImage());
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String getTitle = title.getText().toString().trim();
+                String getDescription = description.getText().toString().trim();
+                String getLocation = locationTextView.getText().toString().trim();
 
-       
-        resultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        try {
-                            Uri imageUri = result.getData().getData();
-                            memoryImageView.setImageURI(imageUri);
-                        } catch (Exception e) {
-                            Toast.makeText(getActivity(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                if (getTitle.isEmpty() || getDescription.isEmpty() || getLocation.isEmpty()) {
+                    Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
+                // Get Bitmap from ImageView
+                Bitmap bitmap = null;
+                if (memoryImageView.getDrawable() != null) {
+                    memoryImageView.setDrawingCacheEnabled(true);
+                    memoryImageView.buildDrawingCache();
+                    bitmap = Bitmap.createBitmap(memoryImageView.getDrawingCache());
+                    memoryImageView.setDrawingCacheEnabled(false);
+                }
 
-                        }
-                    }
-                });
+                // Save into database
+                DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+                dbHelper.insertMemory(getTitle, getDescription, getLocation, bitmap);
+
+                Toast.makeText(getActivity(), "Memory Saved!", Toast.LENGTH_SHORT).show();
+
+                // Optionally clear inputs
+                title.setText("");
+                description.setText("");
+                locationTextView.setText("");
+                memoryImageView.setImageResource(0); // clear image
+            }
+        });
 
 
         return view;
     }
 
-    private void pickImage() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        resultLauncher.launch(intent);
+    private ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    try {
+                        // Convert URI to Bitmap
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+                        // Set bitmap to ImageView
+                        memoryImageView.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
 
 
         
     }
-}
 

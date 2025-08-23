@@ -1,43 +1,9 @@
-
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="8dp"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/recyclerView">
+    android:layout_height="match_parent">
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/memoryRecyclerView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clipToPadding="false"
-    android:padding="16dp"
-    android:scrollbars="vertical">
-
-
-    <ImageView
-        android:id="@+id/memoryImage"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop" />
-
-    <TextView
-        android:id="@+id/memoryTitle"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/memoryDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/memoryLocation"
-        android:textStyle="italic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</androidx.recyclerview.widget.RecyclerView>
-</LinearLayout>
+        android:layout_height="match_parent"/>
+</FrameLayout>

@@ -1,6 +1,7 @@
 package com.example.memories;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
@@ -8,38 +9,43 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.List;
+
 import androidx.annotation.NonNull;
-import com.example.memories.Memory;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder> {
+import java.util.List;
 
+public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryViewHolder> {
+
+    private Context context;
     private List<Memory> memoryList;
 
-    public MemoryAdapter(List<Memory> memoryList) {
+    public MemoryAdapter(Context context, List<Memory> memoryList) {
+        this.context = context;
         this.memoryList = memoryList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_list, parent, false);
-        return new ViewHolder(view);
+    public MemoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_memory, parent, false);
+        return new MemoryViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MemoryViewHolder holder, int position) {
         Memory memory = memoryList.get(position);
+
         holder.title.setText(memory.getTitle());
         holder.description.setText(memory.getDescription());
         holder.location.setText(memory.getLocation());
 
-        // Convert byte[] to Bitmap
-        Bitmap bitmap = BitmapFactory.decodeByteArray(memory.getImage(), 0, memory.getImage().length);
-        holder.image.setImageBitmap(bitmap);
+        // Convert byte[] back to Bitmap
+        byte[] imageBytes = memory.getImage();
+        if (imageBytes != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            holder.image.setImageBitmap(bitmap);
+        }
     }
 
     @Override
@@ -47,16 +53,18 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         return memoryList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class MemoryViewHolder extends RecyclerView.ViewHolder {
         TextView title, description, location;
         ImageView image;
 
-        public ViewHolder(View itemView) {
+        public MemoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            title = itemView.findViewById(R.id.memoryTitle);
-            description = itemView.findViewById(R.id.memoryDescription);
-            location = itemView.findViewById(R.id.memoryLocation);
-            image = itemView.findViewById(R.id.memoryImage);
+            title = itemView.findViewById(R.id.textTitle);
+            description = itemView.findViewById(R.id.textDescription);
+            location = itemView.findViewById(R.id.textLocation);
+            image = itemView.findViewById(R.id.imageMemory);
         }
     }
 }
+
+
